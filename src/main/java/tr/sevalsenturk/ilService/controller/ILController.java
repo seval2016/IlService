@@ -2,13 +2,12 @@ package tr.sevalsenturk.ilService.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import tr.sevalsenturk.ilService.model.Il;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import static org.springframework.http.HttpStatus.OK;
@@ -17,14 +16,20 @@ import static org.springframework.http.HttpStatus.OK;
 @RequestMapping("/iller") //Controller hangi URL de çalışacak
 public class ILController {
 
-    private final List<Il> iller;
+    private static final List<Il> iller=new ArrayList<>();
 
     public ILController() {
-        Il il1 = new Il("75", "Ardahan");
-        Il il2 = new Il("34", "İstanbul");
-        Il il3 = new Il("16", "Bursa");
+        if(iller.isEmpty()){
+            Il il1 = new Il(new Date(), "75", "Ardahan");
+            Il il2 = new Il(new Date(), "34", "İstanbul");
+            Il il3 = new Il(new Date(), "16", "Bursa");
 
-        iller = Arrays.asList(il1, il2, il3);
+            iller.add(il1);
+            iller.add(il2);
+            iller.add(il3);
+        }
+
+
     }
 
     /*
@@ -72,13 +77,34 @@ public class ILController {
             }
         }*/
 
-        Il result = iller.stream()
+        Il result = getIlById(id);
+        return new ResponseEntity<>(result, OK);
+
+    }
+
+    private Il getIlById(String id) {
+        return iller.stream()
                 .filter(il -> il.getId().equals(id))
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("IL Not Found"));
+    }
 
-        return new ResponseEntity<>(result, OK);
+    @PostMapping
+    public ResponseEntity<Il> createIl(@RequestBody Il newIl){
+        newIl.setCreateDate(new Date());
+        iller.add(newIl);
+        return new ResponseEntity<>(newIl,HttpStatus.CREATED);
+    }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<Void> getIl (@PathVariable String id, @RequestBody Il newIl){
+
+        Il oldIl=getIlById(id);
+        oldIl.setName(newIl.getName());
+        oldIl.setCreateDate(new Date());
+
+        return new ResponseEntity<>(OK);
+        
     }
 
 }
