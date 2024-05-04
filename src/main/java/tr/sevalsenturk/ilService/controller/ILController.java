@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 
 @RestController //bu classın bir controller class'ı oldugunu bildiriyoruz
@@ -82,21 +83,14 @@ public class ILController {
 
     }
 
-    private Il getIlById(String id) {
-        return iller.stream()
-                .filter(il -> il.getId().equals(id))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("IL Not Found"));
-    }
-
     @PostMapping
     public ResponseEntity<Il> createIl(@RequestBody Il newIl){
         newIl.setCreateDate(new Date());
         iller.add(newIl);
-        return new ResponseEntity<>(newIl,HttpStatus.CREATED);
+        return new ResponseEntity<>(newIl,CREATED);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{id}") //update
     public ResponseEntity<Void> getIl (@PathVariable String id, @RequestBody Il newIl){
 
         Il oldIl=getIlById(id);
@@ -106,5 +100,20 @@ public class ILController {
         return new ResponseEntity<>(OK);
         
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteIl (@PathVariable String id){
+        Il il=getIlById(id);
+        iller.remove(il);
+        return new ResponseEntity<>(OK);
+    }
+
+    private Il getIlById(String id) {
+        return iller.stream()
+                .filter(il -> il.getId().equals(id))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("IL Not Found"));
+    }
+
 
 }
