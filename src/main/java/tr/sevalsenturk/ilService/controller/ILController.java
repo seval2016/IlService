@@ -10,8 +10,6 @@ import tr.sevalsenturk.ilService.model.Il;
 import tr.sevalsenturk.ilService.service.ILService;
 
 
-import java.io.FileNotFoundException;
-import java.util.Date;
 import java.util.List;
 
 import static org.springframework.http.HttpStatus.CREATED;
@@ -24,6 +22,7 @@ public class ILController {
 
     private final ILService ilService;
 
+
     /*
      @GetMapping
      @ResponseStatus(HttpStatus.CREATED)
@@ -35,12 +34,11 @@ public class ILController {
         Aşağıdaki  getIller methodu bu şekilde de yazılır fakat burada default olarak spring boot 200 döndürür. Aşağıdaki kodda döndürülen değere mesaj da ekleyebiliriz fakar burada müdahale edemeyiz. Sadece @ResponseStatus ile yine springboot'un kendi mesajını verdirebiliriz.
     }
      */
-
     /*
      http://localhost:8080/iller?name=Bursa dediğimizde sadece Bursa il verisini
      http://localhost:8080/iller dediğimizde tüm illeri getiren controller methodu
      */
-    @GetMapping
+    @GetMapping //http://localhost:8080/iller?name=Bursa
     public ResponseEntity<List<Il>> getIller(@RequestParam(required = false) String name) {
         //ResponseEntity ->rest ortamında kullanılan classlardır
         return new ResponseEntity<>(ilService.getIller(name), OK);
@@ -67,7 +65,7 @@ public class ILController {
             throw new RuntimeException("IL not found");
          }
      }*/
-     /* //1.yöntem
+    /* //1.yöntem
         try{
             return new ResponseEntity<>(getIlById(id), OK);
         }catch (IlNotFoundException ex){
@@ -84,7 +82,7 @@ public class ILController {
         return new ResponseEntity<>(ilService.createIl(newIl),CREATED);
     }
 
-    @PutMapping("/{id}") //http://localhost:8080/iller/16 -> uddate için kullanılır
+    @PutMapping("/{id}") //http://localhost:8080/iller/16 -> update için kullanılır
     public ResponseEntity<Void> getIl (@PathVariable String id, @RequestBody Il newIl){
 
         ilService.updateIl(id,newIl);

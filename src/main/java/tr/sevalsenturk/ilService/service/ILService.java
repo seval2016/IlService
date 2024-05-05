@@ -14,22 +14,22 @@ import java.util.Optional;
 @Service
 @AllArgsConstructor
 public class ILService {
+
     private final IlRepository ilRepository;
+
     public List<Il> getIller(String name) {
         if(name == null){
-            return ilRepository.findAll();
+            return ilRepository.findAll();//Eğer Request param kısmında ben isim yollamadıysam tüm illeri getir
         }else{
             return ilRepository.findAllByName(name);
         }
-
     }
 
     public Il createIl(Il newIl) {
-       Optional <Il> ilByName= ilRepository.findByName(newIl.getName()); //varsa hata verıyoruz yoksa save ediyoruz
+       Optional <Il> ilByName  = ilRepository.findByName(newIl.getName()); //varsa hata verıyoruz yoksa save ediyoruz
        if(ilByName.isPresent()){
            throw new IlAlreadyExistsException("IL already exist with name :" +newIl.getName());
        }
-
         return ilRepository.save(newIl);
     }
 
@@ -43,8 +43,10 @@ public class ILService {
     }
 
     public void updateIl(String id, Il newIl) {
-       Il oldIl= getIlById(id);
-       oldIl.setName(newIl.getName());
-       ilRepository.save(oldIl);
+       Il oldIl= getIlById(id); //Güncellenecek id bulunuyor ve bir değişkene atanıyor
+       oldIl.setName(newIl.getName()); //Kullanıcının gönderdiği ilin ismini setle
+       ilRepository.save(oldIl); //eski il üzerine yeni ismi kaydet
     }
+
+
 }
