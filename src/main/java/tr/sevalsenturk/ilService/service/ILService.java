@@ -3,6 +3,7 @@ package tr.sevalsenturk.ilService.service;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import tr.sevalsenturk.ilService.exception.IlNotFoundException;
 import tr.sevalsenturk.ilService.model.Il;
 import tr.sevalsenturk.ilService.repository.IlRepository;
 
@@ -31,7 +32,7 @@ public class ILService {
 
     public Il getIlById(String id) {
         return ilRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("IL Not Found"));
+                .orElseThrow(() -> new IlNotFoundException("IL Not Found" +id));
     }
 
     public void updateIl(String id, Il newIl) {

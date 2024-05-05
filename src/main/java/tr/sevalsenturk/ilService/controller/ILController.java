@@ -4,10 +4,12 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import tr.sevalsenturk.ilService.exception.IlNotFoundException;
 import tr.sevalsenturk.ilService.model.Il;
 import tr.sevalsenturk.ilService.service.ILService;
 
 
+import java.io.FileNotFoundException;
 import java.util.Date;
 import java.util.List;
 
@@ -45,39 +47,43 @@ public class ILController {
 
     /* tek bir il  getirmek için
     @PathVariable  -> @GetMapping("/{id}") bu kısımdaki verilen id'yi kodumuzun içerisine alabilmek için kullanılır.  @PathVariable yanına tanımladığımız parametre ile @GetMapping de tanımlanan değişken parametre aynı olursa güzel olur. Eğer farklı bir isim yazacaksak @PathVariable yanına parantez içerisinde getmapping'deki variable tanımlanmalı. Aynı isimleri yazarsak buna gerek kalmaz.*/
+    /*//1.yöntem
+    for (Il il: iller) {
+
+        if(il.getId().equals(id)){
+            return new ResponseEntity<>(il, OK);
+        }
+        return ResponseEntity.notFound().build(); // If no matching id is found
+    }*/
+    /* Il result=null;
+    //2.yöntem
+     for (int i=0; i<iller.size();i++) {
+       Il il=iller.get(i);
+         if(il.getId().equals(id)){
+             result=il;
+         }
+         if(result==null){
+            throw new RuntimeException("IL not found");
+         }
+     }*/
+     /* //1.yöntem
+        try{
+            return new ResponseEntity<>(getIlById(id), OK);
+        }catch (IlNotFoundException ex){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+        }*/
     @GetMapping("/{id}") //http://localhost:8080/iller/34
     public ResponseEntity<Il> getIl(@PathVariable String id) {
-
-      /* //1.yöntem
-        for (Il il: iller) {
-
-            if(il.getId().equals(id)){
-                return new ResponseEntity<>(il, OK);
-            }
-            return ResponseEntity.notFound().build(); // If no matching id is found
-        }*/
-
-       /* Il result=null;
-       //2.yöntem
-        for (int i=0; i<iller.size();i++) {
-          Il il=iller.get(i);
-            if(il.getId().equals(id)){
-                result=il;
-            }
-            if(result==null){
-               throw new RuntimeException("IL not found");
-            }
-        }*/
-
-        return new ResponseEntity<>(getIlById(id), OK);
+    return new ResponseEntity<>(getIlById(id),OK);
     }
 
-    @PostMapping
+    @PostMapping //http://localhost:8080/iller -> yeni il eklemek için kullanılır
     public ResponseEntity<Il> createIl(@RequestBody Il newIl){
         return new ResponseEntity<>(ilService.createIl(newIl),CREATED);
     }
 
-    @PutMapping("/{id}") //update
+    @PutMapping("/{id}") //http://localhost:8080/iller/16 -> uddate için kullanılır
     public ResponseEntity<Void> getIl (@PathVariable String id, @RequestBody Il newIl){
 
         ilService.updateIl(id,newIl);
@@ -85,7 +91,7 @@ public class ILController {
         
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{id}") //http://localhost:8080/iller/40
     public ResponseEntity<Void> deleteIl (@PathVariable String id){
         ilService.deleteIl(id);
         return new ResponseEntity<>(OK);
@@ -95,5 +101,10 @@ public class ILController {
         return ilService.getIlById(id);
     }
 
+    @ExceptionHandler(IlNotFoundException.class)
+    public ResponseEntity<String> handleIlNotFoundException(IlNotFoundException ex){
+        return new ResponseEntity<>(ex.getMessage(),HttpStatus.NOT_FOUND);
+
+    }
 
 }
