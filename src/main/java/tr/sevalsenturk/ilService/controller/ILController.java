@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import tr.sevalsenturk.ilService.exception.IlAlreadyExistsException;
 import tr.sevalsenturk.ilService.exception.IlNotFoundException;
 import tr.sevalsenturk.ilService.model.Il;
 import tr.sevalsenturk.ilService.service.ILService;
@@ -107,4 +108,9 @@ public class ILController {
 
     }
 
+    @ExceptionHandler(IlAlreadyExistsException.class)
+    public ResponseEntity<String> handleIlAlreadyExistsException(IlAlreadyExistsException ex){
+        return new ResponseEntity<>(ex.getMessage(),HttpStatus.CONFLICT);
+
+    }
 }
