@@ -1,12 +1,13 @@
 package tr.sevalsenturk.ilService.controller;
 
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tr.sevalsenturk.ilService.model.Il;
+import tr.sevalsenturk.ilService.service.ILService;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+
 import java.util.Date;
 import java.util.List;
 
@@ -15,23 +16,10 @@ import static org.springframework.http.HttpStatus.OK;
 
 @RestController //bu classın bir controller class'ı oldugunu bildiriyoruz
 @RequestMapping("/iller") //Controller hangi URL de çalışacak
+@AllArgsConstructor
 public class ILController {
 
-    private static final List<Il> iller=new ArrayList<>();
-
-    public ILController() {
-        if(iller.isEmpty()){
-            Il il1 = new Il(new Date(), "75", "Ardahan");
-            Il il2 = new Il(new Date(), "34", "İstanbul");
-            Il il3 = new Il(new Date(), "16", "Bursa");
-
-            iller.add(il1);
-            iller.add(il2);
-            iller.add(il3);
-        }
-
-
-    }
+    private final ILService ilService;
 
     /*
      @GetMapping
@@ -45,16 +33,19 @@ public class ILController {
     }
      */
 
-    //Tüm illeri getirmek için
+    /*
+     http://localhost:8080/iller?name=Bursa dediğimizde sadece Bursa il verisini
+     http://localhost:8080/iller dediğimizde tüm illeri getiren controller methodu
+     */
     @GetMapping
-    public ResponseEntity<List<Il>> getIller() {
+    public ResponseEntity<List<Il>> getIller(@RequestParam(required = false) String name) {
         //ResponseEntity ->rest ortamında kullanılan classlardır
-        return new ResponseEntity<>(iller, OK);
+        return new ResponseEntity<>(ilService.getIller(name), OK);
     }
 
     /* tek bir il  getirmek için
     @PathVariable  -> @GetMapping("/{id}") bu kısımdaki verilen id'yi kodumuzun içerisine alabilmek için kullanılır.  @PathVariable yanına tanımladığımız parametre ile @GetMapping de tanımlanan değişken parametre aynı olursa güzel olur. Eğer farklı bir isim yazacaksak @PathVariable yanına parantez içerisinde getmapping'deki variable tanımlanmalı. Aynı isimleri yazarsak buna gerek kalmaz.*/
-    @GetMapping("/{id}")
+    @GetMapping("/{id}") //http://localhost:8080/iller/34
     public ResponseEntity<Il> getIl(@PathVariable String id) {
 
       /* //1.yöntem
@@ -78,41 +69,30 @@ public class ILController {
             }
         }*/
 
-        Il result = getIlById(id);
-        return new ResponseEntity<>(result, OK);
-
+        return new ResponseEntity<>(getIlById(id), OK);
     }
 
     @PostMapping
     public ResponseEntity<Il> createIl(@RequestBody Il newIl){
-        newIl.setCreateDate(new Date());
-        iller.add(newIl);
-        return new ResponseEntity<>(newIl,CREATED);
+        return new ResponseEntity<>(ilService.createIl(newIl),CREATED);
     }
 
     @PutMapping("/{id}") //update
     public ResponseEntity<Void> getIl (@PathVariable String id, @RequestBody Il newIl){
 
-        Il oldIl=getIlById(id);
-        oldIl.setName(newIl.getName());
-        oldIl.setCreateDate(new Date());
-
-        return new ResponseEntity<>(OK);
+        ilService.updateIl(id,newIl);
+        return new ResponseEntity<>(HttpStatus.OK);
         
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteIl (@PathVariable String id){
-        Il il=getIlById(id);
-        iller.remove(il);
+        ilService.deleteIl(id);
         return new ResponseEntity<>(OK);
     }
 
     private Il getIlById(String id) {
-        return iller.stream()
-                .filter(il -> il.getId().equals(id))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("IL Not Found"));
+        return ilService.getIlById(id);
     }
 
 

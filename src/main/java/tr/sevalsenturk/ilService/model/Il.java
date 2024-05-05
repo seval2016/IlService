@@ -3,6 +3,7 @@ package tr.sevalsenturk.ilService.model;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
 
 import java.util.Date;
 
@@ -10,8 +11,9 @@ import java.util.Date;
 @NoArgsConstructor //Constructor oluşturmamak için
 @AllArgsConstructor
 public class Il {
-    private Date createDate;
+    @Id
     private String id;
+    private Date createDate=new Date();
     private String name;
 
 }
